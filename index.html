@@ -9,6 +9,10 @@
       font-family: "Segoe UI", sans-serif;
       padding: 40px;
       text-align: center;
+      color: #000; /* ← 黒字に設定 */
+    }
+    h2 {
+      color: #000; /* 明示的に黒字指定 */
     }
     .widget-container {
       max-width: 350px;
@@ -40,12 +44,12 @@
       iframe.width = "100%";
       iframe.height = "245";
       const container = document.getElementById("widget-container");
-      container.innerHTML = ""; // clear previous content
+      container.innerHTML = "";
       container.appendChild(iframe);
     }
 
     function fallbackToTokyo() {
-      createWeatherWidget(35.6812, 139.7671); // 東京駅
+      createWeatherWidget(35.6812, 139.7671);
     }
 
     if (navigator.geolocation) {
@@ -55,16 +59,3 @@
           const lon = position.coords.longitude.toFixed(4);
           createWeatherWidget(lat, lon);
         },
-        function (error) {
-          console.warn("位置情報の取得に失敗しました。東京の天気を表示します。");
-          fallbackToTokyo();
-        }
-      );
-    } else {
-      alert("このブラウザは位置情報に対応していません。東京の天気を表示します。");
-      fallbackToTokyo();
-    }
-  </script>
-
-</body>
-</html>

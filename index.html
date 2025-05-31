@@ -2,75 +2,69 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>現在地の天気予報</title>
-
+  <title>現在地の天気ウィジェット</title>
   <style>
-    .max_temp { display: inline-block !important; }
-    .min_temp { display: inline-block !important; }
-    .temp { display: block !important; }
-    .rain_s { display: block !important; }
-    .w_bg { background: linear-gradient(to right, #ffffff, #fff); }
+    body {
+      background: #f0f0f0;
+      font-family: "Segoe UI", sans-serif;
+      padding: 40px;
+      text-align: center;
+    }
+    .widget-container {
+      max-width: 350px;
+      margin: auto;
+    }
+    iframe {
+      border: 0;
+      width: 100%;
+      height: 245px;
+    }
   </style>
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.12/css/weather-icons.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.12/css/weather-icons-wind.css">
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-
-  <!-- 天気取得スクリプト -->
-  <script src="https://sitecreation.co.jp/wp-content/themes/sango-theme-child/tpl/weather.js"></script>
-  <link rel="stylesheet" href="https://sitecreation.co.jp/wp-content/themes/sango-theme-child/tpl/style.css" id="PageStyleSheet">
-
-  <script>
-    // 初期値：東京（万一現在地取得に失敗したとき用）
-    let lat = 35.69389;
-    let lon = 139.703613;
-    let inputText1 = "東京都新宿区";
-    let search_add = inputText1;
-    let weather_value = 7;
-
-    function showWeather(latVal, lonVal, name = "現在地") {
-      lat = latVal;
-      lon = lonVal;
-      inputText1 = name;
-      search_add = name;
-
-      $('#weather1').html('');
-      $('#weather2').html('');
-      if (typeof getWeather === 'function') {
-        getWeather(lat, lon, inputText1);
-      }
-    }
-
-    function getCurrentLocationAndWeather() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          function (position) {
-            const userLat = position.coords.latitude;
-            const userLon = position.coords.longitude;
-            showWeather(userLat, userLon, "現在地");
-          },
-          function (error) {
-            console.warn("現在地の取得に失敗しました。東京の天気を表示します。");
-            showWeather(lat, lon, inputText1); // 東京をデフォルト表示
-          }
-        );
-      } else {
-        alert("このブラウザは位置情報に対応していません");
-        showWeather(lat, lon, inputText1);
-      }
-    }
-
-    // ページロード時に現在地取得＆天気表示
-    $(document).ready(function () {
-      getCurrentLocationAndWeather();
-    });
-  </script>
 </head>
 <body>
-  <div id="weather-wrapper">
-    <div id="weather1"></div>
-    <div id="weather2"></div>
+
+  <h2>現在地の天気予報</h2>
+  <div class="widget-container" id="widget-container">
+    <p>天気を読み込み中...</p>
   </div>
+
+  <script>
+    function createWeatherWidget(lat, lon) {
+      const widgetURL = `https://weatherwidget.io/w/?id=twc&lang=ja&theme=pure&loc=${lat},${lon}`;
+      const iframe = document.createElement("iframe");
+      iframe.src = widgetURL;
+      iframe.scrolling = "no";
+      iframe.frameBorder = "0";
+      iframe.allowTransparency = "true";
+      iframe.style = "border:0;overflow:hidden;";
+      iframe.width = "100%";
+      iframe.height = "245";
+      const container = document.getElementById("widget-container");
+      container.innerHTML = ""; // clear previous content
+      container.appendChild(iframe);
+    }
+
+    function fallbackToTokyo() {
+      createWeatherWidget(35.6812, 139.7671); // 東京駅
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        function (position) {
+          const lat = position.coords.latitude.toFixed(4);
+          const lon = position.coords.longitude.toFixed(4);
+          createWeatherWidget(lat, lon);
+        },
+        function (error) {
+          console.warn("位置情報の取得に失敗しました。東京の天気を表示します。");
+          fallbackToTokyo();
+        }
+      );
+    } else {
+      alert("このブラウザは位置情報に対応していません。東京の天気を表示します。");
+      fallbackToTokyo();
+    }
+  </script>
+
 </body>
 </html>
